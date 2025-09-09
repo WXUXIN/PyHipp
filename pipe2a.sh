@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sbatch /data/src/PyHipp/rplparallel-slurm.sh
+
 # second job - no dependencies, called from the day directory
 jid2=$(sbatch /data/src/PyHipp/rse-slurm.sh)
 
