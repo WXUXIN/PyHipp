@@ -6,15 +6,27 @@
 #SBATCH --ntasks=1   # number of processor cores (i.e. tasks)
 #SBATCH --nodes=1   # number of nodes
 #SBATCH --cpus-per-task=1	# number of processors per task
-#SBATCH -J "rpllfp"   # job name
+#SBATCH -J "rplpl"   # job name
 
 ## /SBATCH -p general # partition (queue)
-#SBATCH -o rpllfp-slurm.%N.%j.out # STDOUT
-#SBATCH -e rpllfp-slurm.%N.%j.err # STDERR
+#SBATCH -o rplpl-slurm.%N.%j.out # STDOUT
+#SBATCH -e rplpl-slurm.%N.%j.err # STDERR
 
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
 python -u -c "import PyHipp as pyh; \
+import DataProcessingTools as DPT; \
+import os; \
 import time; \
-pyh.RPLLFP(saveLevel=1); \
-print(time.localtime());"
+t0 = time.time(); \
+print(time.localtime()); \
+DPT.objects.processDirs(dirs=None, objtype=pyh.RPLParallel, saveLevel=1); \
+DPT.objects.processDirs(dirs=None, objtype=pyh.Unity, saveLevel=1); \
+pyh.EDFSplit(); \
+os.chdir('session01'); \
+pyh.aligning_objects(); \
+pyh.raycast(1); \
+print(time.localtime()); \
+print(time.time()-t0);"
+
+aws sns publish --topic-arn arn:aws:sns:ap-southeast-1:012345678901:awsnotify --message "RPLParallelJobDone"
 
